@@ -21,7 +21,21 @@ class _MyRollCallState extends State<MyRollCall> {
       appBar: AppBar(
         title: Text("我的点名"),
       ),
-      body: Row(
+      body: Container(
+        margin: const EdgeInsets.only(top: 10, bottom: 10),
+        padding: const EdgeInsets.only(top: 10, bottom: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.4),
+              offset: Offset(0, 0),
+              blurRadius: 5,
+              spreadRadius: 5,
+            )
+          ]
+        ),
+        child:       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           DatePickerDiy("开始时间", (val) {
@@ -35,8 +49,12 @@ class _MyRollCallState extends State<MyRollCall> {
               _endTime = val.toLocal();
             });
           }),
+          Icon(Icons.calendar_today),
         ],
       ),
+      )
+      
+
     );
   }
 }
