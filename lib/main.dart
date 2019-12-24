@@ -1,15 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:my_flutter_app/login.dart';
+
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "您好呀，弗拉特尔!",
-      home: MyRollCall(),
+      home: LoginPage(),
       routes: <String, WidgetBuilder>{
-        "/home": (BuildContext context) => HomePage(),
+        "/home": (BuildContext context) => MyRollCall(),
         "/about": (BuildContext context) => AboutPage(),
       },
     );
@@ -21,36 +23,9 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
-        title: Text("Home"),
+        title: Text("首页"),
       ),
-      body: Center(
-        child: Container(
-          margin: new EdgeInsets.only(top: 200, left: 40, right: 40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(labelText: "用户名"),
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: "密码"),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 20),
-                child: RaisedButton(
-                  padding: EdgeInsets.only(left: 100, right: 100),
-                  color: Colors.blue,
-                  textColor: Colors.white,
-                  child: Text(
-                    "登录",
-                  ),
-                  onPressed: () {},
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
+      body: Text("首页"),
     );
   }
 }
@@ -59,7 +34,6 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(),
         title: Text("About"),
       ),
     );
@@ -74,6 +48,7 @@ class _MyRollCallState extends State<MyRollCall> {
     return Scaffold(
         appBar: AppBar(
           title: Text("我的点名"),
+          automaticallyImplyLeading: false,
           actions: <Widget>[
             FlatButton(
               child: Icon(
