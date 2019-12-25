@@ -2,18 +2,28 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  final Function setToken;
+  LoginPage(this.setToken);
+
+  _LogInPageState createState() => _LogInPageState();
+}
+
+class _LogInPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("登录"),
       ),
-      body: LogInForm(),
+      body: LogInForm(widget.setToken),
     );
   }
 }
 
 class LogInForm extends StatefulWidget {
+  final Function setToken;
+
+  LogInForm(this.setToken);
   LogInFormState createState() => LogInFormState();
 }
 
@@ -56,7 +66,7 @@ class LogInFormState extends State<LogInForm> {
     super.dispose();
   }
 
-  Future<Token> loginRequest() async {
+  void loginRequest() async {
     loading = true;
     String url = "http://dxg.bjvtc.com/produce//v1/api/permuaa/oauth/token";
     final response = await http.post(url, body: {
@@ -67,8 +77,8 @@ class LogInFormState extends State<LogInForm> {
     });
     loading = false;
     if (response.statusCode == 200) {
-      print(json.decode(response.body));
-      return Token.fromJson(json.decode(response.body));
+      widget.setToken(json.decode(response.body)['access_token']);
+      Navigator.pushNamed(context, "/home");
     } else {
       throw Exception("Faild to get access token");
     }
@@ -79,9 +89,11 @@ class LogInFormState extends State<LogInForm> {
       key: _key,
       child: Center(
         child: Container(
+          width: 300,
           margin: new EdgeInsets.only(top: 200, left: 40, right: 40),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               TextFormField(
                 decoration: InputDecoration(labelText: "用户名"),
@@ -89,7 +101,7 @@ class LogInFormState extends State<LogInForm> {
                   if (value.isEmpty) return "请输入用户名！";
                   return null;
                 },
-                autofocus: true,
+                // autofocus: true,
                 controller: usernameController,
               ),
               TextFormField(
@@ -101,9 +113,8 @@ class LogInFormState extends State<LogInForm> {
                 controller: pwdController,
               ),
               Container(
-                margin: EdgeInsets.only(top: 20),
+                margin: EdgeInsets.only(top: 40),
                 child: RaisedButton(
-                  padding: EdgeInsets.only(left: 100, right: 100),
                   color: Colors.blue,
                   textColor: Colors.white,
                   child: Text(
@@ -111,26 +122,11 @@ class LogInFormState extends State<LogInForm> {
                   ),
                   onPressed: () {
                     if (_key.currentState.validate()) {
-                      token = loginRequest();
-                      Navigator.pushNamed(context, "/home");
+                      loginRequest();
                     }
                   },
                 ),
               ),
-              loading
-                  ? FutureBuilder<Token>(
-                      future: token,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Text(snapshot.data.accessToken);
-                        } else if (snapshot.hasError) {
-                          return Text(snapshot.error);
-                        }
-
-                        return CircularProgressIndicator();
-                      },
-                    )
-                  : Container(),
             ],
           ),
         ),
