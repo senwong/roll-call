@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_flutter_app/Pagination.dart';
 import 'dart:convert';
+
+import 'package:my_flutter_app/RollCall.dart';
+import 'package:my_flutter_app/RollCallItem.dart';
 
 class MyRollCall extends StatefulWidget {
   final accessToken;
@@ -14,6 +18,9 @@ class MyRollCall extends StatefulWidget {
 class _MyRollCallState extends State<MyRollCall> {
   DateTime _beginTime;
   DateTime _endTime;
+  Pagination pagination =
+      Pagination(current: 0, pageSize: 10, hasNextPage: true);
+  ScrollController scrollController = ScrollController();
 
   List<RollCall> rollCallList = [];
 
@@ -21,6 +28,25 @@ class _MyRollCallState extends State<MyRollCall> {
     super.initState();
     print("accessToken in MyRollCall initState: " + widget.accessToken);
     getPublished();
+    scrollController.addListener(() {
+      // print("current: " +
+      //     pagination.current.toString() +
+      //     ", pageSize: " +
+      //     pagination.pageSize.toString() +
+      //     ", hasNextPage: " +
+      //     pagination.hasNextPage.toString());
+      if (scrollController.position.pixels ==
+              scrollController.position.maxScrollExtent &&
+          pagination.hasNextPage) {
+        setState(() {
+          pagination = Pagination(
+              current: pagination.current + 1,
+              pageSize: pagination.pageSize,
+              hasNextPage: pagination.hasNextPage);
+        });
+        getPublished();
+      }
+    });
   }
 
   void getPublished() async {
@@ -28,11 +54,16 @@ class _MyRollCallState extends State<MyRollCall> {
         "http://dxg.bjvtc.com/produce//v1/api/lapp/RollCallApi/pageQueryRollCall";
     final res = await http.post(url, body: {
       "token": widget.accessToken,
+      "pageNo": pagination.current.toString(),
+      "pageSize": pagination.pageSize.toString(),
     });
     if (res.statusCode == 200) {
       List rawList = jsonDecode(res.body)['rows'];
+      List<RollCall> toadd =
+          rawList.map((ele) => RollCall.fromJson(ele)).toList();
       setState(() {
-        rollCallList = rawList.map((ele) => RollCall.fromJson(ele)).toList();
+        rollCallList.addAll(toadd);
+        pagination = Pagination.fromJson(jsonDecode(res.body));
       });
     } else {
       throw Exception("Faild to get access token");
@@ -95,8 +126,9 @@ class _MyRollCallState extends State<MyRollCall> {
               padding: const EdgeInsets.all(8),
               itemCount: rollCallList.length,
               itemBuilder: (BuildContext context, int index) {
-                return Text('Entry ${rollCallList[index].title}');
+                return RollCallItem(rollCallList[index]);
               },
+              controller: scrollController,
             ),
           ),
         ],
@@ -145,38 +177,4 @@ class _DatePickerDiyState extends State<DatePickerDiy> {
       ),
     );
   }
-}
-
-class RollCall {
-  int detailId;
-  int rollCallId;
-  String rollCallTime;
-  int statusKey;
-  String statusName;
-  String title;
-  int typeId;
-  String typeName;
-  RollCall(this.detailId, this.rollCallId, this.rollCallTime, this.statusKey,
-      this.statusName, this.title, this.typeId, this.typeName);
-
-  RollCall.fromJson(Map<String, dynamic> json)
-      : detailId = json['detailId'],
-        rollCallId = json['rollCallId'],
-        rollCallTime = json['rollCallTime'],
-        statusKey = json['statusKey'],
-        statusName = json['statusName'],
-        title = json['title'],
-        typeId = json['typeId'],
-        typeName = json['typeName'];
-
-  Map<String, dynamic> toJson() => {
-        'detailId': detailId,
-        'rollCallId': rollCallId,
-        'rollCallTime': rollCallTime,
-        'statusKey': statusKey,
-        'statusName': statusName,
-        'title': title,
-        'typeId': typeId,
-        'typeName': typeName,
-      };
 }

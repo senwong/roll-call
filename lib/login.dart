@@ -105,6 +105,7 @@ class LogInFormState extends State<LogInForm> {
                 controller: usernameController,
               ),
               TextFormField(
+                obscureText: true,
                 decoration: InputDecoration(labelText: "密码"),
                 validator: (value) {
                   if (value.isEmpty) return "请输入密码！";
