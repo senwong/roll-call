@@ -1,39 +1,27 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:my_flutter_app/utils.dart';
 
 class LoginPage extends StatefulWidget {
-  final Function setToken;
-  LoginPage(this.setToken);
-
+  LoginPage();
   _LogInPageState createState() => _LogInPageState();
 }
 
 class _LogInPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
+    print(context.owner);
     return Scaffold(
       appBar: AppBar(
         title: Text("登录"),
       ),
-      body: LogInForm(widget.setToken),
+      body: LogInForm(),
     );
   }
 }
 
 class LogInForm extends StatefulWidget {
-  final Function setToken;
-
-  LogInForm(this.setToken);
   LogInFormState createState() => LogInFormState();
-}
-
-class Token {
-  final String accessToken;
-  Token({this.accessToken});
-
-  factory Token.fromJson(Map<String, dynamic> json) {
-    return Token(accessToken: json['access_token']);
-  }
 }
 
 class LogInFormState extends State<LogInForm> {
@@ -47,7 +35,6 @@ class LogInFormState extends State<LogInForm> {
   final usernameController = TextEditingController();
   final pwdController = TextEditingController();
 
-  Future<Token> token;
 
   void initState() {
     super.initState();
@@ -77,7 +64,7 @@ class LogInFormState extends State<LogInForm> {
     });
     loading = false;
     if (response.statusCode == 200) {
-      widget.setToken(json.decode(response.body)['access_token']);
+      setToken(json.decode(response.body)['access_token']);
       Navigator.pushNamed(context, "/home");
     } else {
       throw Exception("Faild to get access token");

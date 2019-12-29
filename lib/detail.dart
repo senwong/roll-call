@@ -1,31 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:my_flutter_app/RollCall.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+
+import 'package:my_flutter_app/utils.dart';
 
 class Detail extends StatefulWidget {
-  final String accessToken;
-  Detail(this.accessToken);
   DetailState createState() => DetailState();
 }
 
 class DetailState extends State<Detail> {
   List<DetailItem> list = [];
   void getList(int rollCallId) async {
-    String url =
-        "http://dxg.bjvtc.com/produce//v1/api/lapp//RollCallApi/listQueryDetailInfoByRollCallId";
-    final res = await http.post(
-      url,
-      body: {
-        "token": widget.accessToken,
-        "rollCallId": rollCallId.toString(),
-      },
-    );
-
-    if (res.statusCode == 200) {
+    var res = fetchPost("RollCallApi/listQueryDetailInfoByRollCallId", {
+      "rollCallId": rollCallId.toString(),
+    });
+    if (res != null) {
       setState(() {
-        list = List<DetailItem>.from(
-            jsonDecode(res.body).map((ele) => DetailItem.fromjson(ele)));
+        list =
+            List<DetailItem>.from(res.map((ele) => DetailItem.fromjson(ele)));
       });
     } else {
       throw Exception("Faild to get list");

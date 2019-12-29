@@ -55,6 +55,14 @@ class RollCallItem extends StatelessWidget {
                 ],
               ),
             ),
+            IconButton(
+              icon: Icon(Icons.cancel),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.check_circle),
+              onPressed: () {},
+            ),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(3),

@@ -1,23 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:my_flutter_app/CurrentRollCalls.dart';
-import 'package:my_flutter_app/HistoricalRollCalls.dart';
 import 'package:my_flutter_app/Pagination.dart';
 import 'package:my_flutter_app/RollCall.dart';
 import 'package:my_flutter_app/RollCallItem.dart';
 import 'package:my_flutter_app/utils.dart';
 
-class MyRollCall extends StatefulWidget {
-  _MyRollCallState createState() => _MyRollCallState();
+class HistoricalRollCalls extends StatefulWidget {
+  HistoricalRollCallsState createState() => HistoricalRollCallsState();
 }
 
-class _MyRollCallState extends State<MyRollCall> {
+class HistoricalRollCallsState extends State<HistoricalRollCalls> {
   DateTime _beginTime;
   DateTime _endTime;
+  bool _loading = false;
   Pagination pagination =
       Pagination(current: 0, pageSize: 10, hasNextPage: true);
-  int _selectedIndex = 0;
-  List<Widget> tabs = [CurrentRollCalls(), HistoricalRollCalls(), Text("统计"), Text("设置")];
+
   ScrollController scrollController = ScrollController();
 
   List<RollCall> rollCallList = [];
@@ -41,10 +39,14 @@ class _MyRollCallState extends State<MyRollCall> {
   }
 
   void getPublished() async {
+    setState(() {
+      _loading = true;
+    });
     Map<String, dynamic> res =
         await fetchPost("RollCallApi/pageQueryRollCall", {
       "pageNo": pagination.current.toString(),
       "pageSize": pagination.pageSize.toString(),
+      "statusKeys": "2",
     });
 
     if (res != null) {
@@ -58,58 +60,65 @@ class _MyRollCallState extends State<MyRollCall> {
     } else {
       throw Exception("Faild to get access token");
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("我的点名"),
-      ),
-      body: tabs[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        showUnselectedLabels: true,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-              title: Text(
-                "当前点名",
-                style: TextStyle(color: Colors.black),
+    return Column(
+      children: <Widget>[
+        Container(
+          margin: const EdgeInsets.only(top: 10, bottom: 10),
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          decoration: BoxDecoration(color: Colors.white, boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.4),
+              offset: Offset(0, 0),
+              blurRadius: 5,
+              spreadRadius: 5,
+            )
+          ]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              DatePickerDiy("开始时间", (val) {
+                setState(() {
+                  _beginTime = val.toLocal();
+                });
+              }),
+              Text(
+                "至",
+                style: TextStyle(fontSize: 24),
               ),
-              icon: Icon(
-                Icons.view_list,
-                color: Colors.black,
-              )),
-          BottomNavigationBarItem(
-              title: Text(
-                "历史点名",
-                style: TextStyle(color: Colors.black),
-              ),
-              icon: Icon(
-                Icons.history,
-                color: Colors.black,
-              )),
-          BottomNavigationBarItem(
-              title: Text(
-                "统计",
-                style: TextStyle(color: Colors.black),
-              ),
-              icon: Icon(
-                Icons.equalizer,
-                color: Colors.black,
-              )),
-          BottomNavigationBarItem(
-              title: Text("设置", style: TextStyle(color: Colors.black)),
-              icon: Icon(
-                Icons.settings,
-                color: Colors.black,
-              )),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: (idx) => {
-          setState(() {
-            _selectedIndex = idx;
-          })
-        },
-      ),
+              DatePickerDiy("结束时间", (val) {
+                setState(() {
+                  _endTime = val.toLocal();
+                });
+              }),
+              Icon(Icons.calendar_today),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _loading
+              ? Center(
+                  child: SizedBox(
+                    child: CircularProgressIndicator(),
+                    width: 60,
+                    height: 60,
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: rollCallList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return RollCallItem(rollCallList[index]);
+                  },
+                  controller: scrollController,
+                ),
+        ),
+      ],
     );
   }
 }

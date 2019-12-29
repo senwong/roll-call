@@ -12,21 +12,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String accessToken;
-
-  void setAccessToken(String token) {
-    accessToken = token;
-    print('accessToken: ' + token);
-  }
 
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "您好呀，弗拉特尔!",
-      home: LoginPage(setAccessToken),
+      home: LoginPage(),
       routes: <String, WidgetBuilder>{
-        "/home": (BuildContext context) => MyRollCall(accessToken),
+        "/home": (BuildContext context) => MyRollCall(),
         "/about": (BuildContext context) => AboutPage(),
-        "/detail": (BuildContext context) => Detail(accessToken),
+        "/detail": (BuildContext context) => Detail(),
       },
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
