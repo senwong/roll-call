@@ -10,7 +10,6 @@ class LoginPage extends StatefulWidget {
 
 class _LogInPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
-    print(context.owner);
     return Scaffold(
       appBar: AppBar(
         title: Text("登录"),
@@ -35,6 +34,8 @@ class LogInFormState extends State<LogInForm> {
   final usernameController = TextEditingController();
   final pwdController = TextEditingController();
 
+  FocusNode _usernameFocus;
+  FocusNode _pwdFocus;
 
   void initState() {
     super.initState();
@@ -45,11 +46,15 @@ class LogInFormState extends State<LogInForm> {
     pwdController.addListener(() {
       _pwd = pwdController.text;
     });
+    _usernameFocus = FocusNode();
+    _pwdFocus = FocusNode();
   }
 
   void dispose() {
     usernameController.dispose();
     pwdController.dispose();
+    _usernameFocus.dispose();
+    _pwdFocus.dispose();
     super.dispose();
   }
 
@@ -83,22 +88,42 @@ class LogInFormState extends State<LogInForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(labelText: "用户名"),
+                decoration: InputDecoration(
+                  labelText: "用户名",
+                  icon: Icon(Icons.account_circle),
+                ),
+
                 validator: (value) {
                   if (value.isEmpty) return "请输入用户名！";
                   return null;
                 },
                 // autofocus: true,
                 controller: usernameController,
+                focusNode: _usernameFocus,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (val) {
+                  _usernameFocus.unfocus();
+                  FocusScope.of(context).requestFocus(_pwdFocus);
+                },
               ),
               TextFormField(
                 obscureText: true,
-                decoration: InputDecoration(labelText: "密码"),
+                decoration: InputDecoration(
+                  labelText: "密码",
+                  icon: Icon(Icons.lock),
+                ),
                 validator: (value) {
                   if (value.isEmpty) return "请输入密码！";
                   return null;
                 },
                 controller: pwdController,
+                focusNode: _pwdFocus,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (val) {
+                  if (_key.currentState.validate()) {
+                    loginRequest();
+                  }
+                },
               ),
               Container(
                 margin: EdgeInsets.only(top: 40),

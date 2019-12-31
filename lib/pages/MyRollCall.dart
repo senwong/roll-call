@@ -17,7 +17,12 @@ class _MyRollCallState extends State<MyRollCall> {
   Pagination pagination =
       Pagination(current: 0, pageSize: 10, hasNextPage: true);
   int _selectedIndex = 0;
-  List<Widget> tabs = [CurrentRollCalls(), HistoricalRollCalls(), Text("统计"), Text("设置")];
+  List<Widget> tabs = [
+    CurrentRollCalls(),
+    HistoricalRollCalls(),
+    Text("统计"),
+    Text("设置")
+  ];
   ScrollController scrollController = ScrollController();
 
   List<RollCall> rollCallList = [];
@@ -68,39 +73,33 @@ class _MyRollCallState extends State<MyRollCall> {
       body: tabs[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.red,
+        unselectedItemColor: Colors.black,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
               title: Text(
                 "当前点名",
-                style: TextStyle(color: Colors.black),
               ),
-              icon: Icon(
-                Icons.view_list,
-                color: Colors.black,
-              )),
+              icon: Icon(Icons.view_list)),
           BottomNavigationBarItem(
               title: Text(
                 "历史点名",
-                style: TextStyle(color: Colors.black),
               ),
               icon: Icon(
                 Icons.history,
-                color: Colors.black,
               )),
           BottomNavigationBarItem(
               title: Text(
                 "统计",
-                style: TextStyle(color: Colors.black),
               ),
               icon: Icon(
                 Icons.equalizer,
-                color: Colors.black,
               )),
           BottomNavigationBarItem(
-              title: Text("设置", style: TextStyle(color: Colors.black)),
+              title: Text("设置"),
               icon: Icon(
                 Icons.settings,
-                color: Colors.black,
               )),
         ],
         currentIndex: _selectedIndex,

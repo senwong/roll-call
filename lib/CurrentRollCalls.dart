@@ -48,11 +48,11 @@ class CurrentRollCallsState extends State<CurrentRollCalls> {
       "pageSize": pagination.pageSize.toString(),
       "statusKeys": "0,1",
     });
-
     if (res != null) {
       List rawList = res["rows"];
       List<RollCall> toadd =
           rawList.map((ele) => RollCall.fromJson(ele)).toList();
+      if (!mounted) return;
       setState(() {
         rollCallList.addAll(toadd);
         pagination = Pagination.fromJson(res);
